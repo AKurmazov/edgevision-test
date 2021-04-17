@@ -26,13 +26,10 @@ def main():
     with requests.Session() as session:
         session.trust_env = False
         while True:
-            was = time.time()
             data = []
             for _ in range(MESSAGES_PER_SECOND):
                 data.append(generate_message())
             request_controller(session, data)
-            print(time.time() - was)
-
             time.sleep(1)
 
 

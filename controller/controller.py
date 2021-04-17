@@ -19,37 +19,37 @@ app = Flask(__name__)
 
 # Initial conditions
 semaphore = False
-signals = []
+sensors_data = []
 
 
 def request_manipulator():
-    global signals, semaphore
+    global sensors_data, semaphore
 
     # Use the concept of semaphore so that not to let the
-    # list of signals be changed while modifying
+    # list of sensors' data be changed while modifying
     semaphore = True
-    _signals = copy.copy(signals)
-    signals = []
+    _sensors_data = copy.copy(sensors_data)
+    sensors_data = []
     semaphore = False
 
-    _sum = sum(_signals)
-    _len = len(_signals)
+    _sum = sum(_sensors_data)
+    _len = len(_sensors_data)
 
     # The decision whether the manipulator gets "up" or "down"
     # signal is based on the mean of sensors' payloads
     status = "up" if _len and _sum / _len >= 10.0 else "down"
     timestamp = datetime.datetime.now().strftime("%Y%m%dT%H%M")
 
-    man_signal = f"Status changed to {status.upper()} at {timestamp}"
+    signal = f"Status changed to {status.upper()} at {timestamp}"
     with open("logs.txt", "a") as out_file:
-        out_file.write(f"{man_signal}\n")
+        out_file.write(f"{signal}\n")
 
     # Initialize TCP socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # Send signal to manipulator
     sock.connect((HOST, PORT))
-    sock.send(man_signal.encode('utf-8'))
+    sock.send(signal.encode('utf-8'))
 
     # Close TCP socket
     sock.close()
@@ -57,14 +57,14 @@ def request_manipulator():
 
 @app.route("/", methods=["POST"])
 def controller():
-    global signals
+    global sensors_data
     
     if request.method == "POST":
         data = request.json
 
         while semaphore:
             print("Waiting for semaphore to go down...")
-        signals.extend(list(map(lambda item: int(item["payload"]), data)))
+        sensors_data.extend(list(map(lambda item: int(item["payload"]), data)))
 
         return Response(status=200)
 
