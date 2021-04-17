@@ -1,0 +1,28 @@
+version: "3"
+services:
+    manipulator:
+        build:
+            dockerfile: Dockerfile
+            context: ./manipulator
+        ports:
+            - "5001:5001"
+        volumes:
+            - ./manipulator:/code
+    controller:
+        build:
+            dockerfile: Dockerfile
+            context: ./controller
+        ports:
+            - "5000:5000"
+        volumes:
+            - ./controller:/code
+        depends_on:
+            - manipulator
+    sensor:
+        build:
+            dockerfile: Dockerfile
+            context: ./sensor
+        volumes:
+            - ./sensor:/code
+        depends_on:
+            - controller
