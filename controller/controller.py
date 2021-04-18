@@ -27,6 +27,9 @@ def request_manipulator():
 
     # Use the concept of semaphore so that not to let the
     # list of sensors' data be changed while modifying
+    while semaphore:
+        pass  # Waiting for semaphore to go down...
+    
     semaphore = True
     _sensors_data = copy.copy(sensors_data)
     sensors_data = []
@@ -39,9 +42,10 @@ def request_manipulator():
     # signal is based on the mean of sensors' payloads
     status = "up" if _len and _sum / _len >= 10.0 else "down"
     timestamp = datetime.datetime.now().strftime("%Y%m%dT%H%M")
-
     signal = f"Status changed to {status.upper()} at {timestamp}"
-    with open("logs.txt", "a") as out_file:
+
+    # Log decision to the logging file
+    with open("controller.log", "a") as out_file:
         out_file.write(f"{signal}\n")
 
     # Initialize TCP socket
@@ -57,14 +61,18 @@ def request_manipulator():
 
 @app.route("/", methods=["POST"])
 def controller():
-    global sensors_data
-    
+    global sensors_data, semaphore
+
     if request.method == "POST":
         data = request.json
 
+        # Similar to the request_manipulator code, use semaphore
         while semaphore:
-            print("Waiting for semaphore to go down...")
+            pass  # Waiting for semaphore to go down...
+
+        semaphore = True
         sensors_data.extend(list(map(lambda item: int(item["payload"]), data)))
+        semaphore = False
 
         return Response(status=200)
 

@@ -14,7 +14,7 @@ def request_controller(session, payload):
     try:
         response = session.post(CONTROLLER_URL, data=json.dumps(payload), headers=headers)
     except:
-        pass
+        pass # Fail silently :)
 
 
 def generate_message():
@@ -23,13 +23,14 @@ def generate_message():
 
 
 def main():
+    # Set up persistent HTTP connection
     with requests.Session() as session:
         session.trust_env = False
         while True:
             data = []
             for _ in range(MESSAGES_PER_SECOND):
                 data.append(generate_message())
-            request_controller(session, data)
+            request_controller(session, data)  # Send data to controller in chucks of 300 messages
             time.sleep(1)
 
 

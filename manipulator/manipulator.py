@@ -1,10 +1,13 @@
 import socket
 
+
+# TCP socket data
 HOST = socket.gethostname()
 PORT = 5002
 
 
 def init_socket():
+    # Initialize TCP socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind((HOST, PORT))
     sock.listen(1)
@@ -12,7 +15,8 @@ def init_socket():
 
 
 def log_signal(signal):
-    with open("logs.txt", "a") as out_file:
+    # Log status change to the logging file
+    with open("manipulator.log", "a") as out_file:
         out_file.write(f"{signal}\n")
 
 
