@@ -1,5 +1,5 @@
 # EdgeVision Test Assignment
-This project is a test assignment give by *EdgeVision*
+This project is a test assignment given by *EdgeVision*
 
 ### Running locally
 The project uses Docker, so initially you have to build and run images using **docker-compose**
